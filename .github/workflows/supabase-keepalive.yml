@@ -1,0 +1,44 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    # Run every 3 days at 18:17 UTC
+    - cron: "17 18 */3 * *"
+
+  # Allows manual testing
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    name: Keep Supabase Active
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Query Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -e
+
+          echo "Checking Supabase..."
+
+          RESPONSE=$(curl -sS \
+            -w "\n%{http_code}" \
+            -X GET \
+            "${SUPABASE_URL}/rest/v1/keepalive?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+            echo "Supabase is responding successfully."
+          else
+            echo "Supabase request failed."
+            exit 1
+          fi
