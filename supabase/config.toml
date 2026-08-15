@@ -1,0 +1,49 @@
+project_id = "hypewall"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+# Caps how many rows one PostgREST request can return, so a public board
+# cannot be used to bulk-scrape every message in the workspace.
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+# Catches magic-link and notification email locally at http://localhost:54324
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "60MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/**"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+# Contributors verify by clicking the link, so no confirmation step on top.
+double_confirm_changes = true
+enable_confirmations = true
+# Magic links are single-use and short-lived.
+otp_expiry = 3600
+
+[analytics]
+enabled = false
+
+[edge_runtime]
+enabled = true
